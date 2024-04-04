@@ -14,7 +14,7 @@ public class ScopedAction : IDisposable
 		onOpen?.Invoke();
 	}
 
-	protected ScopedAction() => OnOpen?.Invoke();
+	protected ScopedAction() { }
 
 	/// <summary>
 	/// Dispose of the <see cref="ScopedAction"/>.
