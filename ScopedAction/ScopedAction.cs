@@ -5,12 +5,16 @@ namespace ktsu.io.ScopedAction;
 public class ScopedAction : IDisposable
 {
 	private bool disposedValue;
-	private Action? OnClose { get; }
+	protected Action? OnOpen { get; init; }
+	protected Action? OnClose { get; init; }
 	public ScopedAction(Action? onOpen, Action? onClose)
 	{
+		OnOpen = onOpen;
 		OnClose = onClose;
 		onOpen?.Invoke();
 	}
+
+	protected ScopedAction() => OnOpen?.Invoke();
 
 	/// <summary>
 	/// Dispose of the <see cref="ScopedAction"/>.
