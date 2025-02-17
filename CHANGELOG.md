@@ -1,3 +1,10 @@
+## v1.0.15 (patch)
+
+Changes since v1.0.14:
+
+- Add automation scripts for metadata generation and project management ([@matt-edmondson](https://github.com/matt-edmondson))
+- Apply new editorconfig ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.14 (patch)
 
 Changes since v1.0.14-pre.28:
