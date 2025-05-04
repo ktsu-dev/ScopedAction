@@ -1,3 +1,9 @@
+## v1.1.2 (patch)
+
+Changes since v1.1.1:
+
+- Update DESCRIPTION.md to clarify utility purpose and change project SDK reference in ScopedAction.csproj ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.1.1 (patch)
 
 Changes since v1.1.0:
