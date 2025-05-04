@@ -1,3 +1,8 @@
+## v1.1.3-pre.1 (prerelease)
+
+Changes since v1.1.2:
+
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 ## v1.1.2 (patch)
 
 Changes since v1.1.1:
@@ -6,11 +11,7 @@ Changes since v1.1.1:
 - Remove Directory.Build.props and Directory.Build.targets files, delete unused PowerShell scripts for versioning, changelog generation, and license creation. Add copyright notice to ScopedAction.cs. ([@matt-edmondson](https://github.com/matt-edmondson))
 ## v1.1.2-pre.1 (prerelease)
 
-Changes since v1.1.1:
-
-- Sync .runsettings ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync .editorconfig ([@ktsu[bot]](https://github.com/ktsu[bot]))
+Incremental prerelease update.
 ## v1.1.1 (patch)
 
 Changes since v1.1.0:
