@@ -2,23 +2,30 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
 namespace ktsu.ScopedAction;
 
-public class ScopedAction : IDisposable
+/// <summary>
+/// A disposable class that executes actions at the beginning and end of a scope.
+/// </summary>
+public abstract class ScopedAction : IDisposable
 {
 	private bool disposedValue;
-	protected Action? OnOpen { get; init; }
-	protected Action? OnClose { get; init; }
-	public ScopedAction(Action? onOpen, Action? onClose)
+	internal readonly Action? onOpen;
+	internal readonly Action? onClose;
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ScopedAction"/> class.
+	/// </summary>
+	/// <param name="onOpen">The action to execute when the scoped action is created.</param>
+	/// <param name="onClose">The action to execute when the scoped action is disposed.</param>
+	protected ScopedAction(Action? onOpen, Action? onClose)
 	{
-		OnOpen = onOpen;
-		OnClose = onClose;
+		this.onOpen = onOpen;
+		this.onClose = onClose;
 		onOpen?.Invoke();
 	}
 
-	protected ScopedAction() { }
+	private ScopedAction() { }
 
 	/// <summary>
 	/// Dispose of the <see cref="ScopedAction"/>.
@@ -30,10 +37,19 @@ public class ScopedAction : IDisposable
 		{
 			if (disposing)
 			{
-				OnClose?.Invoke();
+				try
+				{
+					onClose?.Invoke();
+				}
+				finally
+				{
+					disposedValue = true;
+				}
 			}
-
-			disposedValue = true;
+			else
+			{
+				disposedValue = true;
+			}
 		}
 	}
 

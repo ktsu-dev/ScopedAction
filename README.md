@@ -10,16 +10,36 @@
 
 ## Introduction
 
-`ktsu.ScopedAction` is a .NET utility that provides a clean way to execute actions at the beginning and end of code blocks. It leverages C#'s `using` statement and the `IDisposable` pattern to ensure that paired operations (like resource acquisition/release, state changes, or logging) are properly executed, even in the presence of exceptions.
+`ktsu.ScopedAction` is a .NET utility that provides an abstract base class for executing actions at the beginning and end of code blocks. It implements the RAII (Resource Acquisition Is Initialization) pattern and leverages C#'s `using` statement and the `IDisposable` pattern to ensure that paired operations (like resource acquisition/release, state changes, or logging) are properly executed, even in the presence of exceptions.
+
+As an abstract class, `ScopedAction` is designed to be inherited and extended to create specialized scoped behavior classes tailored to specific use cases.
 
 ## Features
 
+- **Abstract Base Class**: Provides a foundation for creating specialized scoped action classes
+- **RAII Pattern**: Implements Resource Acquisition Is Initialization for deterministic resource management
 - **Paired Actions**: Execute actions when entering and exiting a scope
 - **Exception Safety**: Cleanup actions execute even if exceptions occur
 - **Lightweight**: Simple API with minimal overhead
-- **Flexible**: Works with any action delegates
-- **Extendable**: Can be subclassed for specialized behaviors
+- **Inheritance-Based**: Designed to be extended for domain-specific implementations
+- **Flexible**: Works with any action delegates through protected constructor
 - **Resource Management**: Follows .NET's standard disposal pattern
+
+## RAII (Resource Acquisition Is Initialization)
+
+`ktsu.ScopedAction` implements the RAII pattern, a programming idiom that binds the life cycle of a resource to the lifetime of an object. This ensures that:
+
+- **Automatic Resource Management**: Resources are automatically acquired when the object is constructed and released when it's destroyed
+- **Exception Safety**: Resources are properly released even if exceptions occur within the scope
+- **Deterministic Cleanup**: The cleanup action is guaranteed to execute when the object goes out of scope
+- **Stack-Based Semantics**: Leverages C#'s `using` statement to provide stack-based resource management similar to C++ RAII
+
+The pattern is particularly useful for scenarios like:
+- File operations (open/close)
+- Database transactions (begin/commit or rollback)
+- Lock management (acquire/release)
+- Performance timing (start/stop)
+- Temporary state changes (set/restore)
 
 ## Installation
 
@@ -41,134 +61,48 @@ dotnet add package ktsu.ScopedAction
 <PackageReference Include="ktsu.ScopedAction" Version="x.y.z" />
 ```
 
-## Usage Examples
-
-### Basic Example
+## Usage Example
 
 ```csharp
 using ktsu.ScopedAction;
 
-// Execute actions at the beginning and end of a scope
-using (new ScopedAction(
-    onOpen: () => Console.WriteLine("Entering the scope"),
-    onClose: () => Console.WriteLine("Exiting the scope")))
+// Create a simple derived class for logging
+public class LoggingScope : ScopedAction
+{
+    public LoggingScope(string operation)
+        : base(onOpen: () => Enter(operation), onClose: () => Exit(operation))
+    {
+    }
+
+    private static void Enter(string operation) => Console.WriteLine($"Entering: {operation}");
+    private static void Exit(string operation) => Console.WriteLine($"Exiting: {operation}");
+}
+
+// Usage
+using (new LoggingScope("my operation"))
 {
     // Any code here...
     Console.WriteLine("Inside the scope");
 }
 
 // Output:
-// Entering the scope
+// Entering: my operation
 // Inside the scope
-// Exiting the scope
-```
-
-### Resource Management
-
-```csharp
-// Manage resources with paired acquisition and release
-public void ProcessFile(string filePath)
-{
-    using (new ScopedAction(
-        onOpen: () => Console.WriteLine($"Opening file: {filePath}"),
-        onClose: () => Console.WriteLine($"Closing file: {filePath}")))
-    {
-        // Process the file...
-        Console.WriteLine("Processing file contents");
-    }
-}
-```
-
-### Measuring Performance
-
-```csharp
-// Measure and log execution time of operations
-public void TimedOperation()
-{
-    var stopwatch = new Stopwatch();
-    
-    using (new ScopedAction(
-        onOpen: () => stopwatch.Start(),
-        onClose: () => {
-            stopwatch.Stop();
-            Console.WriteLine($"Operation completed in {stopwatch.ElapsedMilliseconds}ms");
-        }))
-    {
-        // Operation to be timed
-        PerformComplexCalculation();
-    }
-}
-```
-
-## Advanced Usage
-
-### Temporary State Changes
-
-```csharp
-// Temporarily change application state
-private bool _isProcessing;
-
-public void ProcessWithState()
-{
-    using (new ScopedAction(
-        onOpen: () => _isProcessing = true,
-        onClose: () => _isProcessing = false))
-    {
-        // Code that requires _isProcessing to be true
-        PerformProcessing();
-    }
-    
-    // _isProcessing is automatically reset to false here
-}
-```
-
-### Creating Custom ScopedAction Classes
-
-```csharp
-// Create specialized scoped actions by extending the base class
-public class LoggingScope : ScopedAction
-{
-    private readonly string _operationName;
-    private readonly ILogger _logger;
-    
-    public LoggingScope(string operationName, ILogger logger)
-    {
-        _operationName = operationName;
-        _logger = logger;
-        
-        _logger.LogInformation($"Starting operation: {_operationName}");
-    }
-    
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _logger.LogInformation($"Completed operation: {_operationName}");
-        }
-        
-        base.Dispose(disposing);
-    }
-}
-
-// Usage
-using (new LoggingScope("Data Import", logger))
-{
-    // Import data...
-}
+// Exiting: my operation
 ```
 
 ## API Reference
 
 ### ScopedAction Class
 
-The primary class for executing actions at scope boundaries.
+An abstract base class for executing actions at scope boundaries. This class must be inherited to create concrete implementations.
 
 #### Constructors
 
 | Constructor | Parameters | Description |
 |-------------|------------|-------------|
-| `ScopedAction(Action? onOpen, Action? onClose)` | `onOpen`: Action executed on construction<br>`onClose`: Action executed on disposal | Creates a new ScopedAction that executes the specified actions |
-| `ScopedAction()` | None | Protected constructor for derived classes |
+| `ScopedAction(Action? onOpen, Action? onClose)` | `onOpen`: Action executed on construction<br>`onClose`: Action executed on disposal | Protected constructor for derived classes that executes the specified actions |
+| `ScopedAction()` | None | Private parameterless constructor |
 
 #### Methods
 
