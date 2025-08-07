@@ -10,8 +10,11 @@ namespace ktsu.ScopedAction;
 public abstract class ScopedAction : IDisposable
 {
 	private bool disposedValue;
-	internal readonly Action? onOpen;
-	internal readonly Action? onClose;
+
+	/// <summary>
+	/// The action to execute when the scoped action is disposed.
+	/// </summary>
+	protected Action? OnClose { get; set; }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ScopedAction"/> class.
@@ -20,12 +23,14 @@ public abstract class ScopedAction : IDisposable
 	/// <param name="onClose">The action to execute when the scoped action is disposed.</param>
 	protected ScopedAction(Action? onOpen, Action? onClose)
 	{
-		this.onOpen = onOpen;
-		this.onClose = onClose;
+		OnClose = onClose;
 		onOpen?.Invoke();
 	}
 
-	private ScopedAction() { }
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ScopedAction"/> class.
+	/// </summary>
+	protected ScopedAction() { }
 
 	/// <summary>
 	/// Dispose of the <see cref="ScopedAction"/>.
@@ -39,7 +44,7 @@ public abstract class ScopedAction : IDisposable
 			{
 				try
 				{
-					onClose?.Invoke();
+					OnClose?.Invoke();
 				}
 				finally
 				{

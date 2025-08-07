@@ -29,8 +29,8 @@ public class ScopedActionTests
 			onClose: () => onCloseCalled = true);
 
 		// Assert
-		Assert.IsTrue(onOpenCalled, "onOpen should be called immediately in constructor");
-		Assert.IsFalse(onCloseCalled, "onClose should not be called yet");
+		Assert.IsTrue(onOpenCalled, "OnOpen should be called immediately in constructor");
+		Assert.IsFalse(onCloseCalled, "OnClose should not be called yet");
 	}
 
 	[TestMethod]
@@ -53,12 +53,12 @@ public class ScopedActionTests
 			onOpen: () => onOpenCalled = true,
 			onClose: () => onCloseCalled = true))
 		{
-			Assert.IsTrue(onOpenCalled, "onOpen should be called");
-			Assert.IsFalse(onCloseCalled, "onClose should not be called yet");
+			Assert.IsTrue(onOpenCalled, "OnOpen should be called");
+			Assert.IsFalse(onCloseCalled, "OnClose should not be called yet");
 		}
 
 		// Assert
-		Assert.IsTrue(onCloseCalled, "onClose should be called after disposal");
+		Assert.IsTrue(onCloseCalled, "OnClose should be called after disposal");
 	}
 
 	[TestMethod]
@@ -86,7 +86,7 @@ public class ScopedActionTests
 		scopedAction.Dispose();
 
 		// Assert
-		Assert.AreEqual(1, onCloseCallCount, "onClose should only be called once");
+		Assert.AreEqual(1, onCloseCallCount, "OnClose should only be called once");
 	}
 
 	[TestMethod]
@@ -131,7 +131,7 @@ public class ScopedActionTests
 			throw new InvalidOperationException("Test exception");
 		});
 
-		Assert.IsTrue(onCloseCalled, "onClose should be called even when exception occurs");
+		Assert.IsTrue(onCloseCalled, "OnClose should be called even when exception occurs");
 		Assert.AreEqual("Test exception", exception.Message);
 	}
 
@@ -143,17 +143,17 @@ public class ScopedActionTests
 
 		// Act
 		using (TestScopedAction scopedAction = new(
-			onOpen: () => executionOrder.Add("onOpen"),
-			onClose: () => executionOrder.Add("onClose")))
+			onOpen: () => executionOrder.Add("OnOpen"),
+			onClose: () => executionOrder.Add("OnClose")))
 		{
 			executionOrder.Add("inside scope");
 		}
 
 		// Assert
 		Assert.AreEqual(3, executionOrder.Count);
-		Assert.AreEqual("onOpen", executionOrder[0]);
+		Assert.AreEqual("OnOpen", executionOrder[0]);
 		Assert.AreEqual("inside scope", executionOrder[1]);
-		Assert.AreEqual("onClose", executionOrder[2]);
+		Assert.AreEqual("OnClose", executionOrder[2]);
 	}
 
 	[TestMethod]
@@ -176,6 +176,17 @@ public class ScopedActionTests
 		Assert.AreEqual("Exiting: test operation", log[2]);
 	}
 
+	[TestMethod]
+	public void Inheritance_ConstructorTest_WorksCorrectly()
+	{
+		using (new ConstructorTest())
+		{
+			Assert.IsTrue(true);
+		}
+
+		Assert.IsTrue(true);
+	}
+
 	/// <summary>
 	/// Example implementation similar to the one in README for testing.
 	/// </summary>
@@ -183,5 +194,18 @@ public class ScopedActionTests
 	{
 		private static void Enter(string operation, List<string> log) => log.Add($"Entering: {operation}");
 		private static void Exit(string operation, List<string> log) => log.Add($"Exiting: {operation}");
+	}
+
+	private sealed class ConstructorTest : ScopedAction
+	{
+		public ConstructorTest()
+		{
+			OnClose = MyOnClose;
+			MyOnOpen();
+		}
+
+		private static void MyOnOpen() { }
+
+		private void MyOnClose() { }
 	}
 }

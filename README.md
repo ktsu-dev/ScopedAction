@@ -31,8 +31,8 @@ As an abstract class, `ScopedAction` is designed to be inherited and extended to
 
 - **Automatic Resource Management**: Resources are automatically acquired when the object is constructed and released when it's destroyed
 - **Exception Safety**: Resources are properly released even if exceptions occur within the scope
-- **Deterministic Cleanup**: The cleanup action is guaranteed to execute when the object goes out of scope
-- **Stack-Based Semantics**: Leverages C#'s `using` statement to provide stack-based resource management similar to C++ RAII
+- **Deterministic Execution**: The OnClose action is guaranteed to execute when the object goes out of scope
+- **Stack-Based Semantics**: Leverages C#'s `using` statement to provide execution tied to lexical scope, mimicking C++ stack-based object destruction
 
 The pattern is particularly useful for scenarios like:
 - File operations (open/close)
@@ -61,19 +61,44 @@ dotnet add package ktsu.ScopedAction
 <PackageReference Include="ktsu.ScopedAction" Version="x.y.z" />
 ```
 
-## Usage Example
+## Usage Examples
+
+The `ScopedAction` class supports three main patterns, progressing from simple to more complex scenarios:
+
+### Example 1: Using static methods without parameters
 
 ```csharp
 using ktsu.ScopedAction;
 
-// Create a simple derived class for logging
-public class LoggingScope : ScopedAction
+public class ConsoleMarkerScope() : ScopedAction(Enter, Exit)
 {
-    public LoggingScope(string operation)
-        : base(onOpen: () => Enter(operation), onClose: () => Exit(operation))
-    {
-    }
+    // Using method groups - no lambdas needed when methods match Action signature
+    private static void Enter() => Console.WriteLine("Entering scope");
+    private static void Exit() => Console.WriteLine("Exiting scope");
+}
 
+// Usage
+using (new ConsoleMarkerScope())
+{
+    // Any code here...
+    Console.WriteLine("Inside the scope");
+}
+
+// Output:
+// Entering scope
+// Inside the scope
+// Exiting scope
+```
+
+### Example 2: Using static methods with parameters
+
+```csharp
+using ktsu.ScopedAction;
+
+public class LoggingScope(string operation)
+    : ScopedAction(() => Enter(operation), () => Exit(operation))
+{
+    // Using lambdas to capture constructor parameters for static methods
     private static void Enter(string operation) => Console.WriteLine($"Entering: {operation}");
     private static void Exit(string operation) => Console.WriteLine($"Exiting: {operation}");
 }
@@ -91,6 +116,66 @@ using (new LoggingScope("my operation"))
 // Exiting: my operation
 ```
 
+### Example 3: Using instance members
+
+```csharp
+using ktsu.ScopedAction;
+
+// This approach enables access to instance members in the OnClose action
+public class TimingScope : ScopedAction
+{
+    private readonly DateTime startTime;  // Instance field
+    private readonly string operation;    // Instance field
+
+    public TimingScope(string operation)
+    {
+        this.operation = operation;
+        this.startTime = DateTime.Now;
+
+        // OnClose can reference instance method that accesses instance members
+        OnClose = LogExecutionTime;
+
+        // No need to assign an OnOpen action - it would execute immediately anyway.
+        // Instead, just perform the "on open" logic directly in the constructor.
+        Console.WriteLine($"Starting: {operation}");
+    }
+
+    // Instance method with access to instance fields
+    private void LogExecutionTime()
+    {
+        // Can directly access instance members: startTime, operation
+        var elapsed = DateTime.Now - startTime;
+        Console.WriteLine($"Completed: {operation} in {elapsed.TotalMilliseconds:F2}ms");
+    }
+}
+
+// Usage
+using (new TimingScope("database query"))
+{
+    // Simulate some work
+    Thread.Sleep(100);
+    Console.WriteLine("Executing query...");
+}
+
+// Output:
+// Starting: database query
+// Executing query...
+// Completed: database query in 100.xx ms
+```
+
+#### Choosing the Right Pattern
+
+**Example 1 (Method Groups)**: Use when you have simple static methods with no parameters. This is the most concise approach.
+
+**Example 2 (Lambda Capture)**: Use when you need to pass constructor parameters to static methods. Lambdas capture the parameters from the constructor scope.
+
+**Example 3 (Instance Members)**: Use when your OnClose logic needs access to **instance state** (fields, properties, methods). This pattern is essential for:
+- Complex resource management
+- Stateful cleanup operations  
+- Scenarios where disposal behavior depends on data initialized during construction
+
+The parameterless constructor approach gives you full access to the object's state, while the action-based constructors are limited to static methods and captured parameters.
+
 ## API Reference
 
 ### ScopedAction Class
@@ -101,15 +186,21 @@ An abstract base class for executing actions at scope boundaries. This class mus
 
 | Constructor | Parameters | Description |
 |-------------|------------|-------------|
-| `ScopedAction(Action? onOpen, Action? onClose)` | `onOpen`: Action executed on construction<br>`onClose`: Action executed on disposal | Protected constructor for derived classes that executes the specified actions |
-| `ScopedAction()` | None | Private parameterless constructor |
+| `ScopedAction(Action? onOpen, Action? onClose)` | `onOpen`: Action executed on construction<br>`onClose`: Action executed on disposal | Protected constructor for derived classes that executes the onOpen action immediately and stores the onClose action for later execution during disposal |
+| `ScopedAction()` | None | Protected parameterless constructor for derived classes that need custom initialization |
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `OnClose` | `Action?` | Protected property that stores the action to execute when the scoped action is disposed. Can be set by derived classes. |
 
 #### Methods
 
 | Method | Return Type | Description |
 |--------|-------------|-------------|
-| `Dispose()` | `void` | Executes the onClose action if not already disposed |
-| `Dispose(bool disposing)` | `void` | Protected virtual method for implementing the dispose pattern |
+| `Dispose()` | `void` | Public method that implements the IDisposable interface. Executes the OnClose action if not already disposed and suppresses finalization. |
+| `Dispose(bool disposing)` | `void` | Protected virtual method for implementing the standard .NET dispose pattern. Executes the OnClose action when disposing is true and handles multiple disposal calls safely. |
 
 ## Contributing
 
