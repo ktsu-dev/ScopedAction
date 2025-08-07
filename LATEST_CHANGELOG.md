@@ -1,3 +1,5 @@
-## v1.1.3
+## v1.1.4 (patch)
 
-No significant changes detected since v1.1.3.
+Changes since v1.1.3:
+
+- Enhance README and ScopedAction class documentation; improve unit tests ([@matt-edmondson](https://github.com/matt-edmondson))
