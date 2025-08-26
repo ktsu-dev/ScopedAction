@@ -93,7 +93,7 @@ public class ScopedActionTests
 	public void ExceptionInOnOpen_DoesNotPreventConstruction()
 	{
 		// Arrange & Act & Assert
-		InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		InvalidOperationException exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 		{
 			TestScopedAction _ = new(
 				onOpen: () => throw new InvalidOperationException("Test exception"),
@@ -111,7 +111,7 @@ public class ScopedActionTests
 			onClose: () => throw new InvalidOperationException("Test exception"));
 
 		// Act & Assert
-		InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(scopedAction.Dispose);
+		InvalidOperationException exception = Assert.ThrowsExactly<InvalidOperationException>(scopedAction.Dispose);
 		Assert.AreEqual("Test exception", exception.Message);
 	}
 
@@ -122,7 +122,7 @@ public class ScopedActionTests
 		bool onCloseCalled = false;
 
 		// Act & Assert
-		InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(() =>
+		InvalidOperationException exception = Assert.ThrowsExactly<InvalidOperationException>(() =>
 		{
 			using TestScopedAction scopedAction = new(
 				onOpen: null,
