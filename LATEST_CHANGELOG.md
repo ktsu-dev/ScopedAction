@@ -1,8 +1,6 @@
-## v1.1.6 (patch)
+## v1.1.7-pre.1 (prerelease)
 
-Changes since v1.1.5:
+Changes since v1.1.6:
 
-- Fix SDK name and update target framework version in project file ([@matt-edmondson](https://github.com/matt-edmondson))
-- Update project dependencies and improve test assertions for ScopedAction ([@matt-edmondson](https://github.com/matt-edmondson))
-- Add CLAUDE.md for project guidance and build instructions ([@matt-edmondson](https://github.com/matt-edmondson))
-- Add line breaks for improved readability in CLAUDE.md ([@matt-edmondson](https://github.com/matt-edmondson))
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
