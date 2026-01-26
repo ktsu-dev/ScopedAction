@@ -2,9 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
-namespace ktsu.ScopedAction.Tests;
+[assembly: Microsoft.VisualStudio.TestTools.UnitTesting.Parallelize(Scope = Microsoft.VisualStudio.TestTools.UnitTesting.ExecutionScope.MethodLevel)]
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+namespace ktsu.ScopedAction.Tests;
 
 [TestClass]
 public class ScopedActionTests
@@ -150,7 +150,7 @@ public class ScopedActionTests
 		}
 
 		// Assert
-		Assert.AreEqual(3, executionOrder.Count);
+		Assert.HasCount(3, executionOrder);
 		Assert.AreEqual("OnOpen", executionOrder[0]);
 		Assert.AreEqual("inside scope", executionOrder[1]);
 		Assert.AreEqual("OnClose", executionOrder[2]);
@@ -170,7 +170,7 @@ public class ScopedActionTests
 			log.Add("inside scope");
 		}
 
-		Assert.AreEqual(3, log.Count);
+		Assert.HasCount(3, log);
 		Assert.AreEqual("Entering: test operation", log[0]);
 		Assert.AreEqual("inside scope", log[1]);
 		Assert.AreEqual("Exiting: test operation", log[2]);
@@ -179,12 +179,16 @@ public class ScopedActionTests
 	[TestMethod]
 	public void Inheritance_ConstructorTest_WorksCorrectly()
 	{
-		using (new ConstructorTest())
+		bool onOpenCalled = false;
+		bool onCloseCalled = false;
+
+		using (new ConstructorTest(() => onOpenCalled = true, () => onCloseCalled = true))
 		{
-			Assert.IsTrue(true);
+			Assert.IsTrue(onOpenCalled, "OnOpen should be called during construction");
+			Assert.IsFalse(onCloseCalled, "OnClose should not be called yet");
 		}
 
-		Assert.IsTrue(true);
+		Assert.IsTrue(onCloseCalled, "OnClose should be called after disposal");
 	}
 
 	/// <summary>
@@ -198,14 +202,13 @@ public class ScopedActionTests
 
 	private sealed class ConstructorTest : ScopedAction
 	{
-		public ConstructorTest()
+		private readonly Action _onClose;
+
+		public ConstructorTest(Action onOpen, Action onClose)
 		{
-			OnClose = MyOnClose;
-			MyOnOpen();
+			_onClose = onClose;
+			OnClose = _onClose;
+			onOpen();
 		}
-
-		private static void MyOnOpen() { }
-
-		private void MyOnClose() { }
 	}
 }
