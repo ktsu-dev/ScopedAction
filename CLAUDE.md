@@ -30,6 +30,7 @@ dotnet pack --configuration Release --output ./staging
 ### Core Class: `ScopedAction`
 
 The library consists of a single abstract class (`ScopedAction/ScopedAction.cs`) that:
+
 - Implements `IDisposable` with the standard dispose pattern
 - Provides two protected constructors:
   - `ScopedAction(Action? onOpen, Action? onClose)` - Executes `onOpen` immediately, stores `onClose` for disposal
@@ -40,6 +41,7 @@ The library consists of a single abstract class (`ScopedAction/ScopedAction.cs`)
 ### Inheritance Patterns
 
 Derived classes use three patterns (see README.md for examples):
+
 1. **Method Groups**: Static methods without parameters passed directly to base constructor
 2. **Lambda Capture**: Lambdas capturing constructor parameters for static methods
 3. **Instance Members**: Parameterless constructor with `OnClose` property assignment for stateful cleanup
@@ -54,6 +56,7 @@ Derived classes use three patterns (see README.md for examples):
 ## Testing
 
 Tests use MSTest.Sdk with Microsoft.Testing.Platform runner. Key test scenarios:
+
 - OnOpen executes immediately on construction
 - OnClose executes on disposal (only once)
 - Null actions are handled gracefully
