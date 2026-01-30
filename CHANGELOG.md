@@ -1,3 +1,6 @@
+## v1.1.7
+
+No significant changes detected since v1.1.7.
 ## v1.1.7 (patch)
 
 Changes since v1.1.6:
@@ -14,10 +17,7 @@ Changes since v1.1.7-pre.1:
 - Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
 ## v1.1.7-pre.1 (prerelease)
 
-Changes since v1.1.6:
-
-- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+Incremental prerelease update.
 ## v1.1.6 (patch)
 
 Changes since v1.1.5:
