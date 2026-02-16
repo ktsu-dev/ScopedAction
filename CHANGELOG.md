@@ -1,7 +1,10 @@
-## v1.1.9
+## v1.1.10-pre.1 (prerelease)
 
 Changes since v1.1.9:
 
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
 
 ## v1.1.9 (patch)
 
