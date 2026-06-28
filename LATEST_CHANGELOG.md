@@ -2,5 +2,6 @@
 
 Changes since v1.1.15:
 
+- chore: remove unused SourceLink package versions ([@matt-edmondson](https://github.com/matt-edmondson))
 - chore: remove SourceLink package references from csproj ([@matt-edmondson](https://github.com/matt-edmondson))
 
