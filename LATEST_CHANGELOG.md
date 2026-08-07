@@ -1,8 +1,7 @@
-## v1.1.28 (patch)
+## v1.1.29 (patch)
 
-Changes since v1.1.27:
+Changes since v1.1.28:
 
-- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Bump the ktsu group with 8 updates ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump Polyfill from 11.0.1 to 11.0.2 ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump the ktsu group with 9 updates ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
