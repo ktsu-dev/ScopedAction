@@ -2,11 +2,13 @@
 
 > A lightweight utility for executing paired actions at the start and end of code blocks.
 
-[![License](https://img.shields.io/github/license/ktsu-dev/ScopedAction)](https://github.com/ktsu-dev/ScopedAction/blob/main/LICENSE.md)
-[![NuGet](https://img.shields.io/nuget/v/ktsu.ScopedAction.svg)](https://www.nuget.org/packages/ktsu.ScopedAction/)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/ktsu.ScopedAction.svg)](https://www.nuget.org/packages/ktsu.ScopedAction/)
-[![Build Status](https://github.com/ktsu-dev/ScopedAction/workflows/build/badge.svg)](https://github.com/ktsu-dev/ScopedAction/actions)
-[![GitHub Stars](https://img.shields.io/github/stars/ktsu-dev/ScopedAction?style=social)](https://github.com/ktsu-dev/ScopedAction/stargazers)
+[![License](https://img.shields.io/github/license/ktsu-dev/ScopedAction.svg?label=License&logo=nuget)](LICENSE.md)
+[![NuGet Version](https://img.shields.io/nuget/v/ktsu.ScopedAction?label=Stable&logo=nuget)](https://nuget.org/packages/ktsu.ScopedAction)
+[![NuGet Version](https://img.shields.io/nuget/vpre/ktsu.ScopedAction?label=Latest&logo=nuget)](https://nuget.org/packages/ktsu.ScopedAction)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/ktsu.ScopedAction?label=Downloads&logo=nuget)](https://nuget.org/packages/ktsu.ScopedAction)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ktsu-dev/ScopedAction?label=Commits&logo=github)](https://github.com/ktsu-dev/ScopedAction/commits/main)
+[![GitHub contributors](https://img.shields.io/github/contributors/ktsu-dev/ScopedAction?label=Contributors&logo=github)](https://github.com/ktsu-dev/ScopedAction/graphs/contributors)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ktsu-dev/ScopedAction/dotnet.yml?label=Build&logo=github)](https://github.com/ktsu-dev/ScopedAction/actions)
 
 ## Introduction
 
