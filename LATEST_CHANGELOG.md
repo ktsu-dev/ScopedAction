@@ -1,4 +1,4 @@
-## v1.1.36 (patch)
+## v1.1.36
 
-No significant changes detected since v1.1.35.
+No significant changes detected since v1.1.36.
 
