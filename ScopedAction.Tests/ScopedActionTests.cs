@@ -88,6 +88,69 @@ public class ScopedActionTests
 	}
 
 	[TestMethod]
+	public void Dispose_CalledFromInsideOnClose_OnlyExecutesOnCloseOnce()
+	{
+		// Arrange
+		int onCloseCount = 0;
+		TestScopedAction? scopedAction = null;
+		scopedAction = new TestScopedAction(
+			onOpen: null,
+			onClose: () =>
+			{
+				// Capped so that a regression fails the assertion instead of overflowing the stack
+				if (Interlocked.Increment(ref onCloseCount) < 5)
+				{
+					scopedAction!.Dispose();
+				}
+			});
+
+		// Act
+		scopedAction.Dispose();
+
+		// Assert
+		Assert.AreEqual(1, onCloseCount, "OnClose should run once even when it disposes its own scope");
+	}
+
+	[TestMethod]
+	public void Dispose_CalledConcurrently_OnlyExecutesOnCloseOnce()
+	{
+		const int threadCount = 4;
+
+		for (int trial = 0; trial < 20; trial++)
+		{
+			// Arrange
+			int onCloseCount = 0;
+			using TestScopedAction scopedAction = new(
+				onOpen: null,
+				onClose: () =>
+				{
+					Interlocked.Increment(ref onCloseCount);
+					Thread.Sleep(10);
+				});
+			using Barrier barrier = new(threadCount);
+
+			// Act
+			Thread[] threads = [.. Enumerable.Range(0, threadCount).Select(_ => new Thread(() =>
+			{
+				barrier.SignalAndWait();
+				scopedAction.Dispose();
+			}))];
+			foreach (Thread thread in threads)
+			{
+				thread.Start();
+			}
+
+			foreach (Thread thread in threads)
+			{
+				thread.Join();
+			}
+
+			// Assert
+			Assert.AreEqual(1, onCloseCount, $"OnClose should run once when {threadCount} threads dispose together (trial {trial})");
+		}
+	}
+
+	[TestMethod]
 	public void ExceptionInOnOpen_DoesNotPreventConstruction()
 	{
 		// Arrange & Act & Assert

@@ -7,7 +7,7 @@ namespace ktsu.ScopedAction;
 /// </summary>
 public abstract class ScopedAction : IDisposable
 {
-	private bool disposedValue;
+	private int disposed;
 
 	/// <summary>
 	/// The action to execute when the scoped action is disposed.
@@ -36,23 +36,16 @@ public abstract class ScopedAction : IDisposable
 	/// <param name="disposing"></param>
 	protected virtual void Dispose(bool disposing)
 	{
-		if (!disposedValue)
+		// Claim disposal before running OnClose, so a Dispose that arrives while OnClose is still running,
+		// from inside OnClose or from another thread, finds the instance already disposed
+		if (Interlocked.Exchange(ref disposed, 1) != 0)
 		{
-			if (disposing)
-			{
-				try
-				{
-					OnClose?.Invoke();
-				}
-				finally
-				{
-					disposedValue = true;
-				}
-			}
-			else
-			{
-				disposedValue = true;
-			}
+			return;
+		}
+
+		if (disposing)
+		{
+			OnClose?.Invoke();
 		}
 	}
 
