@@ -1,7 +1,6 @@
-## v1.1.45 (patch)
+## v1.1.46 (patch)
 
-Changes since v1.1.44:
+Changes since v1.1.45:
 
-- Hold OnClose open with a condition instead of Thread.Sleep in the concurrency test ([@Claude](https://github.com/Claude))
-- Run OnClose once even when Dispose arrives while it is running [patch] ([@Claude](https://github.com/Claude))
+- Move CI onto the shared ci-shared.yml pipeline ([@Claude](https://github.com/Claude))
 
