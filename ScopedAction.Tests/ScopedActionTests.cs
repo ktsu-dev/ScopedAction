@@ -7,6 +7,8 @@ namespace ktsu.ScopedAction.Tests;
 [TestClass]
 public class ScopedActionTests
 {
+	public TestContext TestContext { get; set; } = null!;
+
 	/// <summary>
 	/// Test implementation of ScopedAction for testing purposes.
 	/// </summary>
@@ -85,6 +87,75 @@ public class ScopedActionTests
 
 		// Assert
 		Assert.AreEqual(1, onCloseCallCount, "OnClose should only be called once");
+	}
+
+	[TestMethod]
+	public void Dispose_CalledFromInsideOnClose_OnlyExecutesOnCloseOnce()
+	{
+		// Arrange
+		int onCloseCount = 0;
+		TestScopedAction? scopedAction = null;
+		scopedAction = new TestScopedAction(
+			onOpen: null,
+			onClose: () =>
+			{
+				// Capped so that a regression fails the assertion instead of overflowing the stack
+				if (Interlocked.Increment(ref onCloseCount) < 5)
+				{
+					scopedAction!.Dispose();
+				}
+			});
+
+		// Act
+		scopedAction.Dispose();
+
+		// Assert
+		Assert.AreEqual(1, onCloseCount, "OnClose should run once even when it disposes its own scope");
+	}
+
+	[TestMethod]
+	public void Dispose_CalledConcurrently_OnlyExecutesOnCloseOnce()
+	{
+		const int threadCount = 4;
+
+		for (int trial = 0; trial < 5; trial++)
+		{
+			// Arrange
+			int onCloseCount = 0;
+			int disposeCallsReturned = 0;
+			using TestScopedAction scopedAction = new(
+				onOpen: null,
+				onClose: () =>
+				{
+					Interlocked.Increment(ref onCloseCount);
+
+					// Hold OnClose open until every other thread's Dispose has returned, so each of them
+					// calls Dispose while OnClose is still running. A regression that lets them run OnClose
+					// too blocks them here, so the wait times out and the count assertion fails.
+					SpinWait.SpinUntil(() => Volatile.Read(ref disposeCallsReturned) >= threadCount - 1, TimeSpan.FromSeconds(5));
+				});
+			using Barrier barrier = new(threadCount);
+
+			// Act
+			Thread[] threads = [.. Enumerable.Range(0, threadCount).Select(_ => new Thread(() =>
+			{
+				barrier.SignalAndWait(TestContext.CancellationToken);
+				scopedAction.Dispose();
+				Interlocked.Increment(ref disposeCallsReturned);
+			}))];
+			foreach (Thread thread in threads)
+			{
+				thread.Start();
+			}
+
+			foreach (Thread thread in threads)
+			{
+				thread.Join();
+			}
+
+			// Assert
+			Assert.AreEqual(1, onCloseCount, $"OnClose should run once when {threadCount} threads dispose together (trial {trial})");
+		}
 	}
 
 	[TestMethod]
