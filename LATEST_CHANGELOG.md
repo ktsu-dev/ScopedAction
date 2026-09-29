@@ -1,6 +1,7 @@
-## v1.1.45-pre.1 (prerelease)
+## v1.1.45 (patch)
 
 Changes since v1.1.44:
 
-- Bump Polyfill from 11.4.0 to 11.4.1 ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Hold OnClose open with a condition instead of Thread.Sleep in the concurrency test ([@Claude](https://github.com/Claude))
+- Run OnClose once even when Dispose arrives while it is running [patch] ([@Claude](https://github.com/Claude))
 
