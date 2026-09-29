@@ -7,6 +7,8 @@ namespace ktsu.ScopedAction.Tests;
 [TestClass]
 public class ScopedActionTests
 {
+	public TestContext TestContext { get; set; } = null!;
+
 	/// <summary>
 	/// Test implementation of ScopedAction for testing purposes.
 	/// </summary>
@@ -116,24 +118,30 @@ public class ScopedActionTests
 	{
 		const int threadCount = 4;
 
-		for (int trial = 0; trial < 20; trial++)
+		for (int trial = 0; trial < 5; trial++)
 		{
 			// Arrange
 			int onCloseCount = 0;
+			int disposeCallsReturned = 0;
 			using TestScopedAction scopedAction = new(
 				onOpen: null,
 				onClose: () =>
 				{
 					Interlocked.Increment(ref onCloseCount);
-					Thread.Sleep(10);
+
+					// Hold OnClose open until every other thread's Dispose has returned, so each of them
+					// calls Dispose while OnClose is still running. A regression that lets them run OnClose
+					// too blocks them here, so the wait times out and the count assertion fails.
+					SpinWait.SpinUntil(() => Volatile.Read(ref disposeCallsReturned) >= threadCount - 1, TimeSpan.FromSeconds(5));
 				});
 			using Barrier barrier = new(threadCount);
 
 			// Act
 			Thread[] threads = [.. Enumerable.Range(0, threadCount).Select(_ => new Thread(() =>
 			{
-				barrier.SignalAndWait();
+				barrier.SignalAndWait(TestContext.CancellationToken);
 				scopedAction.Dispose();
+				Interlocked.Increment(ref disposeCallsReturned);
 			}))];
 			foreach (Thread thread in threads)
 			{
