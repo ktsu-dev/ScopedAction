@@ -1,6 +1,7 @@
-## v1.1.47 (patch)
+## v1.1.48-pre.1 (prerelease)
 
-Changes since v1.1.46:
+Changes since v1.1.47:
 
-- Regenerate CompatibilitySuppressions.xml for the TFMs the SDK now builds [patch] (#86) (matt-edmondson)
+- Bump MSTest.Sdk from 4.5.2 to 4.5.3 (dependabot[bot])
+- Bump the ktsu group with 9 updates (dependabot[bot])
 
